@@ -21,7 +21,7 @@ export const generateArticle = async (req, res) => {
       return res.json({ success: false, message: "Limit reached. Upgrade to continue." });
     }
     const response = await AI.chat.completions.create({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash-lite",
       messages: [{ role: "user", content: prompt, }],
       temperature: 0.7,
       max_tokens: 2000
@@ -56,7 +56,7 @@ export const generateBlogTitle = async (req, res) => {
       return res.json({ success: false, message: "Limit reached. Upgrade to continue." });
     }
     const response = await AI.chat.completions.create({
-      model: "gemini-2.0-flash",
+      model: "gemini-1.5-flash",
       messages: [{ role: "user", content: prompt, }],
       temperature: 0.7,
       max_tokens: 100
@@ -209,7 +209,7 @@ export const resumeReview = async (req, res) => {
     const prompt = `Review the following resume and provide constructive feedback on its strengths,weaknesses and areas for improvements. Resume Content:\n\n ${pdfData.text}`
 
     const response = await AI.chat.completions.create({
-      model: "gemini-2.0-flash",
+      model: "gemini-1.5-flash",
       messages: [{ role: "user", content: prompt, }],
       temperature: 0.7,
       max_tokens: 1000
