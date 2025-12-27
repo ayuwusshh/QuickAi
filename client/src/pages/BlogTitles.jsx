@@ -33,11 +33,10 @@ const BlogTitles = () => {
 
     if (data.success) {
         setContent(data.content)
-    } else {
-        toast.error(data.message)
-    }
+    } 
 } catch (error) {
-    toast.error(error.message)
+    // toast.error(error.message)
+    console.error(error);
 }
 setLoading(false)
   };
