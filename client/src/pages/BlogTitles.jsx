@@ -21,47 +21,26 @@ const BlogTitles = () => {
     const [loading,setLoading]=useState(false)
     const [content,setContent]=useState('')
     const {getToken}=useAuth()
-const onSubmitHandler = async (e) => {
-  e.preventDefault();
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
+    try {
+    setLoading(true)
+    const prompt = `Generate a blog title for the keyword ${input} in the category ${selectedCategory}`
 
-  try {
-    setLoading(true);
-
-    // 🔴 INTENTIONAL 500 INTERNAL SERVER ERROR
-    const error = new Error("Intentional Internal Server Error");
-    error.response = {
-      status: 500,
-      data: { message: "Intentional backend failure for testing" },
-    };
-    throw error;
-
-    // ❌ Unreachable code (kept only for reference)
-    const prompt = `Generate a blog title for the keyword ${input} in the category ${selectedCategory}`;
-
-    const { data } = await axios.post(
-      "/api/ai/generate-blog-title",
-      { prompt },
-      {
-        headers: { Authorization: `Bearer ${await getToken()}` },
-      }
-    );
+    const { data } = await axios.post('/api/ai/generate-blog-title', { prompt }, {
+        headers: { Authorization: `Bearer ${await getToken()}` }
+    })
 
     if (data.success) {
-      setContent(data.content);
-    }
-  } catch (error) {
-    console.error("INTENTIONAL ERROR:", error);
-
-    if (error.response?.status === 500) {
-      toast.error("Internal Server Error (500)");
+        setContent(data.content)
     } else {
-      toast.error("Something went wrong");
+        toast.error(data.message)
     }
-  } finally {
-    setLoading(false);
-  }
-};
-
+} catch (error) {
+    toast.error(error.message)
+}
+setLoading(false)
+  };
   return (
     <div className="h-full overflow-y-scroll p-6 flex items-start flew-wrap gap-4 text-slate-700">
       {/* left col */}

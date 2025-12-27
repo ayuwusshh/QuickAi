@@ -73,10 +73,7 @@ export const generateBlogTitle = async (req, res) => {
         }
       });
     }
-    // Set response status to 404 and send a message
-    res.status(500).send('Sorry, we cannot find that!');
-
-    // res.json({ success: true, content });
+    res.json({ success: true, content });
   } catch (error) {
     console.log(error.message);
     res.json({ success: false, message: error.message });
