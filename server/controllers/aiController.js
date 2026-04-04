@@ -55,12 +55,28 @@ export const generateBlogTitle = async (req, res) => {
     if (plan !== 'premium' && free_usage >= 100) {
       return res.json({ success: false, message: "Limit reached. Upgrade to continue." });
     }
-    const response = await AI.chat.completions.create({
-      model: "gemini-1.5-flash",
-      messages: [{ role: "user", content: prompt, }],
-      temperature: 0.7,
-      max_tokens: 100
-    });
+    let response;
+    for (let attempt = 0; attempt < 4; attempt++) {
+      try {
+        console.log(`Blog title attempt ${attempt + 1}, model: gemini-2.5-flash-lite`);
+        response = await AI.chat.completions.create({
+          model: "gemini-2.5-flash-lite",
+          messages: [{ role: "user", content: prompt, }],
+          temperature: 0.7,
+          max_tokens: 100
+        });
+        break;
+      } catch (err) {
+        console.log(`Attempt ${attempt + 1} failed:`, err.status, err.message);
+        if (err.status === 429 && attempt < 3) {
+          const delay = Math.pow(2, attempt + 1) * 3000; // 6s, 12s, 24s
+          console.log(`Rate limited. Waiting ${delay}ms before retry...`);
+          await new Promise(r => setTimeout(r, delay));
+          continue;
+        }
+        throw err;
+      }
+    }
 
     const content = response.choices[0].message.content
 
@@ -75,7 +91,7 @@ export const generateBlogTitle = async (req, res) => {
     }
     res.json({ success: true, content });
   } catch (error) {
-    console.log(error.message);
+    console.log('generateBlogTitle error:', error.status, error.message);
     res.json({ success: false, message: error.message });
   }
 }
@@ -207,12 +223,28 @@ export const resumeReview = async (req, res) => {
 
     const prompt = `Review the following resume and provide constructive feedback on its strengths,weaknesses and areas for improvements. Resume Content:\n\n ${pdfData.text}`
 
-    const response = await AI.chat.completions.create({
-      model: "gemini-1.5-flash",
-      messages: [{ role: "user", content: prompt, }],
-      temperature: 0.7,
-      max_tokens: 1000
-    });
+    let response;
+    for (let attempt = 0; attempt < 4; attempt++) {
+      try {
+        console.log(`Resume review attempt ${attempt + 1}, model: gemini-2.5-flash-lite`);
+        response = await AI.chat.completions.create({
+          model: "gemini-2.5-flash-lite",
+          messages: [{ role: "user", content: prompt, }],
+          temperature: 0.7,
+          max_tokens: 1000
+        });
+        break;
+      } catch (err) {
+        console.log(`Attempt ${attempt + 1} failed:`, err.status, err.message);
+        if (err.status === 429 && attempt < 3) {
+          const delay = Math.pow(2, attempt + 1) * 3000;
+          console.log(`Rate limited. Waiting ${delay}ms before retry...`);
+          await new Promise(r => setTimeout(r, delay));
+          continue;
+        }
+        throw err;
+      }
+    }
 
     const content = response.choices[0].message.content
 
